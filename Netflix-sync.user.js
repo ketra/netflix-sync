@@ -6,7 +6,7 @@
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
 // @updateURL    https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
-// @grant        none
+// @downloadURL  https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
 // ==/UserScript==
 
 (function() {
