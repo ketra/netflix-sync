@@ -39,7 +39,7 @@ var watched = $(".retableRow").map(function() {
 
 // Convert netflix date.
 function decode_date(date_str) {
-	var [month, day, year] = date_str.split("/");
+	var [day, month, year] = date_str.split("/");
 	year = parseInt(year) > parseInt(new Date().getFullYear().toString().substring(2)) ? year : "20" + year;
 	return new Date(year, month - 1, day);
 }
