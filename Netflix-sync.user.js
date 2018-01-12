@@ -16,7 +16,7 @@
     var element = document.querySelector("li[data-reactid='20']");
     var btn = document.createElement("li");
     var t = document.createTextNode("Sync");
-    btn.className = "profile-selector";
+    //btn.className = "profile-selector";
     btn.appendChild(t);
     insertAfter(btn,element);
 
