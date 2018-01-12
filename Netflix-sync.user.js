@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.2
+// @version      0.3
 // @description  try to take over the world!
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
