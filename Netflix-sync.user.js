@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.4
+// @version      0.5
 // @description  Script to sync Netflix history to Trakt
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
