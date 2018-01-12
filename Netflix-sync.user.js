@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.5
+// @version      0.6
 // @description  Script to sync Netflix history to Trakt
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -16,8 +16,6 @@
     var element = document.querySelector("li[data-reactid='20']");
     var btn = document.createElement("li");
     var t = document.createTextNode("Sync");
-    //btn.className = "profile-selector";
-    btn.setAttribute("data-reactid","20")
     btn.appendChild(t);
     insertAfter(btn,element);
 
