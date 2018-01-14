@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.6
+// @version      0.7
 // @description  Script to sync Netflix history to Trakt
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -25,14 +25,15 @@
         load('https://cdn.rawgit.com/ketra/netflix-sync/master/netflix-sync.css','css');
     }, false);
 
-    function load(filename){
-        if(filename.endsWith('.js')){
-            var fileref=document.createElement('script');
+    function load(filename, type){
+        var fileref=document.createElement('script');
+        if(type=='js'){
+            fileref=document.createElement('script');
             fileref.setAttribute('type','text/javascript');
             fileref.setAttribute('src',filename);
         }
-        else if (filename.endsWith('.css')){
-            var fileref=document.createElement('link');
+        else if (type=='css'){
+            fileref=document.createElement('link');
             fileref.setAttribute('rel','stylesheet');
             fileref.setAttribute('type','text/css');
             fileref.setAttribute('href',filename);
