@@ -20,9 +20,9 @@
     insertAfter(btn,element);
 
     btn.addEventListener("click", function() {
-        load('https://raw.githubusercontent.com/ketra/netflix-sync/master/jquery-ui.js', 'js');
-        load('https://raw.githubusercontent.com/ketra/netflix-sync/master/netflix-sync.js','js');
-        load('https://raw.githubusercontent.com/ketra/netflix-sync/master/netflix-sync.css','css');
+        load('https://cdn.rawgit.com/ketra/netflix-sync/master/jquery-ui.js', 'js');
+        load('https://cdn.rawgit.com/ketra/netflix-sync/master/netflix-sync.js','js');
+        load('https://cdn.rawgit.com/ketra/netflix-sync/master/netflix-sync.css','css');
     }, false);
 
     function load(filename){
