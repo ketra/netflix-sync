@@ -183,7 +183,7 @@ function create_dialog() {
 
 // Process the trakt history and disable any matched show from being synced.
 function do_scrape() {
-	$.get("https://api.trakt.tv/sync/history?limit=1000000", function(data) {
+	$.get("https://api.trakt.tv/sync/history?limit=10000", function(data) {
 		$.each(data, function() {
 			var item = this;
 			if (item.action == "scrobble" || new Date(item.watched_at) < start_date) 
@@ -224,10 +224,12 @@ function do_scrape() {
 				});
 			else {
 				if (item.type == "episode")
+					console.log("found : " + item.show.title + " : " + item.episode.season + " : " + item.episode.title)
 					$("<li draggable='true'>")
 						.text([new Date(item.watched_at).toLocaleDateString(), item.show.title, item.episode.season, item.episode.title].join(", "))
 						.appendTo($(".trakt-dialog .trakt-missing-trakt .list"));
 				else if (item.type == "movie")
+					console.log("found : " + item.movie.title)
 					$("<li draggable='true'>")
 						.text([new Date(item.watched_at).toLocaleDateString(), item.movie.title].join(", "))
 						.appendTo($(".trakt-dialog .trakt-missing-trakt .list"));
