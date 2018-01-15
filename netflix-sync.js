@@ -236,7 +236,7 @@ function do_scrape() {
 		
 		$(".trakt-dialog .trakt-missing-trakt .no-errors").toggleClass("hidden", $(".trakt-dialog .trakt-missing-trakt .list").length > 0);
 
-		do_sync();
+		//do_sync();
 	});
 }
 
