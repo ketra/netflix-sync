@@ -44,8 +44,6 @@ function decode_date(date_str) {
 	return new Date(year, month - 1, day);
 }
 watched.each(function() {
-var item = this
-console.log(item)
-	
-}
-)
+var item = this;
+console.log(item);
+});
