@@ -46,4 +46,6 @@ function decode_date(date_str) {
 watched.each(function() {
 var item = this
 console.log(item)
+	
 }
+)
