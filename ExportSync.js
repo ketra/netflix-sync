@@ -28,7 +28,7 @@
     {
         console.log("Making JsonFile");
         AsyncStringify(dat).then(function(jsonArray) {
-            download(jsonArray, 'test.json', 'text/plain');
+            download(jsonArray, 'ViewHistory.json', 'text/plain');
         });
     }
 
@@ -115,7 +115,23 @@
             console.log(res);
             res.forEach(function(result) {
                 //console.log(result);
-                data.episodes.push(result);
+                var epi;
+                if (result !== undefined) {
+                    try{
+                    epi = data.episodes.find(function (obj) { return obj.episode.showid === result.episode.showid; }).episode;
+                    }
+                    catch(err){
+                    console.log(err);
+                    }
+                    //console.log(epi);
+                    if (epi !== undefined)
+                    {
+                        epi.push(result.episode);
+                    }
+                    else{
+                        data.episodes.push(result);
+                    }
+                }
             });
             MakeJson(data);
         }).catch(function(err) {
@@ -138,7 +154,7 @@
                 resolve(mkep);
             });
             test.error(function(err) {
-                reject(err);
+                resolve();
             });
         });
 
@@ -147,11 +163,15 @@
     function MakeEpisode(item, ep, sh)
     {
         var episode = {};
-        episode.showid = sh.externals.thetvdb;
-        episode.show = sh.name;
-        episode.episode = ep;
-        //data.episodes.push(episode);
-        //episode);
+        if (ep !== undefined)
+        {
+            episode.showid = sh.externals.thetvdb;
+            episode.show = sh.name;
+            episode.episode = [ep];
+            episode.episode.watched = item.date;
+            //data.episodes.push(episode);
+            //episode);
+        }
         return episode;
     }
 
