@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         netflix-Echo
-// @namespace    https://github.com/ketra/netflix-sync
-// @version      0.1
-// @description  Script to sync Netflix history to Trakt
+// @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
+// @version      0.2
+// @description  Script to Export Netflix history to Json
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
+// @updateURL    https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/ExportSync.user.js
+// @downloadURL  https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/ExportSync.user.js
 // @require http://code.jquery.com/jquery-1.12.4.min.js
 // @require https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/TVmaze.js
 // @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
