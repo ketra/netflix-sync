@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-Export-Json
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.2
+// @version      0.3
 // @description  Script to Export Netflix history to Json
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -12,7 +12,7 @@
 // @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     var header = document.getElementById('hd');
@@ -20,63 +20,59 @@
     var btn = document.createElement("li");
     var t = document.createTextNode("Export");
     btn.appendChild(t);
-    insertAfter(btn,element);
+    insertAfter(btn, element);
 
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
         Go();
     }, false);
 
 
-    function MakeJson(dat)
-    {
+    function MakeJson(dat) {
         console.log("Making JsonFile");
-        AsyncStringify(dat).then(function(jsonArray) {
+        AsyncStringify(dat).then(function (jsonArray) {
             download(jsonArray, 'ViewHistory_' + new Date().toLocaleString() + '.json', 'text/plain');
         });
     }
 
-    function AsyncStringify(text)
-    {
-        return new Promise(function(resolve, reject) {
-            try{
+    function AsyncStringify(text) {
+        return new Promise(function (resolve, reject) {
+            try {
 
                 var JSONdata = JSON.stringify(text);
                 //var jsonArray = dat;
                 //console.log(JSONdata);
                 resolve(JSONdata);
             }
-            catch(err)
-            {
+            catch (err) {
                 reject(err);
             }
         });
 
     }
 
-    function Go()
-    {
-        $=jQuery;
+    function Go() {
+        $ = jQuery;
 
-        if(!document.location.href.startsWith("https://www.netflix.com/viewingactivity")) {
+        if (!document.location.href.startsWith("https://www.netflix.com/viewingactivity")) {
             alert("This sync script must be injected into the the netflix activity page.");
-            throw("This sync script must be injected into the the netflix activity page.");
+            throw ("This sync script must be injected into the the netflix activity page.");
         }
-        if($(".trakt-dialog").length > 0) {
+        if ($(".trakt-dialog").length > 0) {
             alert("This sync script was already executed. Please reload the page and try again.");
-            throw("This sync script was already executed. Please reload the page and try again.");
+            throw ("This sync script was already executed. Please reload the page and try again.");
         }
+        DoTraktAuth();
         var watched = GetWatched();
         fetchMovies(watched);
     }
 
-    function GetWatched()
-    {
+    function GetWatched() {
         // Load the list of watched shows from netflix.
-        var watched = $(".retableRow").map(function() {
+        var watched = $(".retableRow").map(function () {
             var date = $(".date", this).text();
             var text = $(".title", this).text();
             text = text.replace(": Part ", " - Part ");
-            if(text.indexOf("Mystery Science Theater 3000: The Return: Season ") !== false)
+            if (text.indexOf("Mystery Science Theater 3000: The Return: Season ") !== false)
                 text = text.replace(": The Return: Season ", ": Season 1");
 
             var [show, season, title] = text.split(/: Season |: Series |: Collection |: "/);
@@ -102,73 +98,164 @@
     function fetchMovies(watched) {
         var promises = [];
         var data = {
-            viewhistory : new Date().toLocaleString(),
-            Shows : []
+            viewhistory: new Date().toLocaleString(),
+            Shows: [],
+            Movies: []
         };
 
-        watched.each(function() {
+        watched.each(function () {
             var item = this;
-            if (!isNaN(item.season))
-            {
+            if (!isNaN(item.season)) {
                 promises.push(GetEpisode(item)); // push the Promises to our array
+            }
+            else
+            {
+                promises.push(GetMovie(item));
             }
         });
 
-        Promise.all(promises).then(function(res) {
+        Promise.all(promises).then(function (res) {
             //console.log(res);
-            res.forEach(function(result) {
+            res.forEach(function (result) {
                 //console.log(result);
                 var Show;
                 if (result !== undefined) {
-                    try{
-                        Show = _.find(data.Shows, function(obj) {
-                            return obj.showid == result.showid;
-                        });
-                        //console.log(epi);
-                        Show.episodes.push(result.episodes);
-                    }
-                    catch(err){
-                    //console.log(err);
-                    }
-                    //console.log(epi);
-                    if (Show === undefined)
+                    if (result.type == 'Show')
                     {
-                        data.Shows.push(result);
+                        try {
+                            Show = _.find(data.Shows, function (obj) {
+                                return obj.showid == result.showid;
+                            });
+                            //console.log(epi);
+                            Show.episodes.push(result.episodes);
+                        }
+                        catch (err) {
+                            //console.log(err);
+                        }
+                        //console.log(epi);
+                        if (Show === undefined) {
+                            data.Shows.push(result);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var mov = result.movie;
+                            if (mov !== undefined)
+                            {
+                            data.Movies.push(mov);
+                            }
+                        }
+                        catch(err)
+                        {
+
+                        }
                     }
                 }
             });
             MakeJson(data);
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.log(err);
         });
     }
+    function GetMovie(item) {
+        return new Promise(function (resolve, reject) {
+            var settings = {
+                async: true,
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
+                    "trakt-api-version": 2,
+                    "trakt-api-key": "c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8"
+                }};
+            $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/search/movie?query=' + item.title} ) ).done(function(res) {
+                if (res && res.length)
+                {
+                    //console.log(res);
+                    var mov = res[0];
+                    mov.movie.watched = item.date;
+                    console.log(mov);
+                    resolve(mov);
+                }
+                else
+                {
+                    resolve();
+                }
+            });
 
-    function GetEpisode(item)
-    {
-        return new Promise(function(resolve, reject) {
+        });
+    }
+
+    function DoTraktAuth() {
+        // Get authentication status.
+        var has_access_token = document.cookie.search(/access_token/) >= 0;
+        var has_refresh_token = document.cookie.search(/refresh_token/) >= 0;
+        var has_code = window.location.search.search((/code=[^&]+/)) >= 0;
+
+
+        // Prompt for trakt.tv login.
+        if (!has_access_token && !has_refresh_token && !has_code)
+            window.location = "https://trakt.tv/oauth/authorize?response_type=code&client_id=c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8&redirect_uri=https%3A%2F%2Fwww.netflix.com%2Fviewingactivity";
+
+        // Run the tool.
+        else if (has_access_token) {
+            //finalizeAuth();
+        } else if (has_refresh_token || has_code) {
+            // Re-authenticate with trakt.tv.
+            if (has_refresh_token)
+                var body = {
+                    'refresh_token': document.cookie.replace(/^.*refresh_token=([^;]+).*$/, "$1"),
+                    'client_id': 'c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8',
+                    'client_secret': '77136073644c3ed408c32633a6bfe274112fd306dbd5de161c404ee7b65af784',
+                    'redirect_uri': 'https://www.netflix.com/viewingactivity',
+                    'grant_type': 'refresh_token'
+                };
+            // Get access token from trakt.tv.
+            else if (has_code)
+                var body = {
+                    'code': window.location.search.replace(/^.*code=([^&]+).*$/, "$1"),
+                    'client_id': 'c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8',
+                    'client_secret': '77136073644c3ed408c32633a6bfe274112fd306dbd5de161c404ee7b65af784',
+                    'redirect_uri': 'https://www.netflix.com/viewingactivity',
+                    'grant_type': 'authorization_code'
+                };
+
+            $.post("https://api.trakt.tv/oauth/token", body, function (data) {
+                console.log("Sucessfully Authenticated");
+                //access_token, token_type, expires_in, refresh_token, scope, created_at
+                document.cookie = "access_token=" + data.access_token + "; expires=" + new Date((data.created_at + data.expires_in) * 1000).toUTCString();
+                document.cookie = "refresh_token=" + data.refresh_token + "; expires=" + new Date((data.created_at + (data.expires_in * 4)) * 1000).toUTCString();
+            });
+        } else
+            alert("Unexpected error authenticating.");
+    }
+
+    function GetEpisode(item) {
+        return new Promise(function (resolve, reject) {
             var test = $.get('https://api.tvmaze.com/singlesearch/shows?q=' + item.show + '&embed=episodes');
-            test.then(function(result) {
+            test.then(function (result) {
                 var eptitle = item.title.split(': ')[2];
                 var episodes = result._embedded.episodes;
-                var obj = $.grep(episodes, function( a ) {
+                var obj = $.grep(episodes, function (a) {
                     return a.name == eptitle;
                 });
                 var ep = obj[0];
-                var mkep = MakeEpisode(item,ep,result);
+                var mkep = MakeEpisode(item, ep, result);
                 resolve(mkep);
             });
-            test.error(function(err) {
+            test.error(function (err) {
                 resolve();
             });
         });
 
     }
 
-    function MakeEpisode(item, ep, sh)
-    {
+    function MakeEpisode(item, ep, sh) {
         var Show = {};
-        if (ep !== undefined)
-        {
+        if (ep !== undefined) {
+            Show.type = 'Show';
             Show.showid = sh.externals.thetvdb;
             Show.name = sh.name;
             Show.episodes = [ep];
@@ -181,7 +268,7 @@
 
     function download(text, name, type) {
         var a = document.createElement("a");
-        var file = new Blob([text], {type: type});
+        var file = new Blob([text], { type: type });
         a.href = URL.createObjectURL(file);
         a.download = name;
         a.click();
@@ -205,4 +292,4 @@
     }
 
 
-})();
+}) ();
