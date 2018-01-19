@@ -7,6 +7,7 @@
 // @match        https://www.netflix.com/viewingactivity*
 // @require http://code.jquery.com/jquery-1.12.4.min.js
 // @require https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/TVmaze.js
+// @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
 // ==/UserScript==
 
 (function() {
@@ -28,7 +29,7 @@
     {
         console.log("Making JsonFile");
         AsyncStringify(dat).then(function(jsonArray) {
-            download(jsonArray, 'ViewHistory.json', 'text/plain');
+            download(jsonArray, 'ViewHistory_' + new Date().toLocaleString() + '.json', 'text/plain');
         });
     }
 
@@ -100,7 +101,7 @@
         var promises = [];
         var data = {
             viewhistory : new Date().toLocaleString(),
-            episodes : []
+            Shows : []
         };
 
         watched.each(function() {
@@ -112,24 +113,25 @@
         });
 
         Promise.all(promises).then(function(res) {
-            console.log(res);
+            //console.log(res);
             res.forEach(function(result) {
                 //console.log(result);
-                var epi;
+                var Show;
                 if (result !== undefined) {
                     try{
-                    epi = data.episodes.find(function (obj) { return obj.episode.showid === result.episode.showid; }).episode;
+                        Show = _.find(data.Shows, function(obj) {
+                            return obj.showid == result.showid;
+                        });
+                        //console.log(epi);
+                        Show.episodes.push(result.episodes);
                     }
                     catch(err){
-                    console.log(err);
+                    //console.log(err);
                     }
                     //console.log(epi);
-                    if (epi !== undefined)
+                    if (Show === undefined)
                     {
-                        epi.push(result.episode);
-                    }
-                    else{
-                        data.episodes.push(result);
+                        data.Shows.push(result);
                     }
                 }
             });
@@ -162,17 +164,17 @@
 
     function MakeEpisode(item, ep, sh)
     {
-        var episode = {};
+        var Show = {};
         if (ep !== undefined)
         {
-            episode.showid = sh.externals.thetvdb;
-            episode.show = sh.name;
-            episode.episode = [ep];
-            episode.episode.watched = item.date;
+            Show.showid = sh.externals.thetvdb;
+            Show.name = sh.name;
+            Show.episodes = [ep];
+            Show.episodes[0].watched = item.date;
             //data.episodes.push(episode);
             //episode);
         }
-        return episode;
+        return Show;
     }
 
     function download(text, name, type) {
