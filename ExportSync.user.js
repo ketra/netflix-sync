@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         netflix-Echo
+// @name         netflix-Export-Json
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
 // @version      0.2
 // @description  Script to Export Netflix history to Json
