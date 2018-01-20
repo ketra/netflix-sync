@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         netflix-Export-Json
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.3
+// @version      0.4
 // @description  Script to Export Netflix history to Json
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -110,7 +110,7 @@
             }
             else
             {
-                promises.push(GetMovie(item));
+                promises.push(GetMovie(item)); // push the Promises to our array
             }
         });
 
@@ -144,7 +144,7 @@
                             var mov = result.movie;
                             if (mov !== undefined)
                             {
-                            data.Movies.push(mov);
+                                data.Movies.push(mov);
                             }
                         }
                         catch(err)
@@ -168,7 +168,7 @@
                 headers: {
                     "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
                     "trakt-api-version": 2,
-                    "trakt-api-key": "c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8"
+                    "trakt-api-key": "234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b"
                 }};
             $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/search/movie?query=' + item.title} ) ).done(function(res) {
                 if (res && res.length)
@@ -197,7 +197,7 @@
 
         // Prompt for trakt.tv login.
         if (!has_access_token && !has_refresh_token && !has_code)
-            window.location = "https://trakt.tv/oauth/authorize?response_type=code&client_id=c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8&redirect_uri=https%3A%2F%2Fwww.netflix.com%2Fviewingactivity";
+            window.location = "https://trakt.tv/oauth/authorize?response_type=code&client_id=234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b&redirect_uri=https%3A%2F%2Fwww.netflix.com%2Fviewingactivity";
 
         // Run the tool.
         else if (has_access_token) {
@@ -207,8 +207,8 @@
             if (has_refresh_token)
                 var body = {
                     'refresh_token': document.cookie.replace(/^.*refresh_token=([^;]+).*$/, "$1"),
-                    'client_id': 'c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8',
-                    'client_secret': '77136073644c3ed408c32633a6bfe274112fd306dbd5de161c404ee7b65af784',
+                    'client_id': '234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b',
+                    'client_secret': '00f363650b9b1e3523ad66fe8e5728a7b733a365e4929c4015a39abcfe3d15bf',
                     'redirect_uri': 'https://www.netflix.com/viewingactivity',
                     'grant_type': 'refresh_token'
                 };
@@ -216,8 +216,8 @@
             else if (has_code)
                 var body = {
                     'code': window.location.search.replace(/^.*code=([^&]+).*$/, "$1"),
-                    'client_id': 'c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8',
-                    'client_secret': '77136073644c3ed408c32633a6bfe274112fd306dbd5de161c404ee7b65af784',
+                    'client_id': '234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b',
+                    'client_secret': '00f363650b9b1e3523ad66fe8e5728a7b733a365e4929c4015a39abcfe3d15bf',
                     'redirect_uri': 'https://www.netflix.com/viewingactivity',
                     'grant_type': 'authorization_code'
                 };
@@ -234,16 +234,53 @@
 
     function GetEpisode(item) {
         return new Promise(function (resolve, reject) {
-            var test = $.get('https://api.tvmaze.com/singlesearch/shows?q=' + item.show + '&embed=episodes');
-            test.then(function (result) {
-                var eptitle = item.title.split(': ')[2];
-                var episodes = result._embedded.episodes;
-                var obj = $.grep(episodes, function (a) {
-                    return a.name == eptitle;
-                });
-                var ep = obj[0];
-                var mkep = MakeEpisode(item, ep, result);
-                resolve(mkep);
+            //var test = $.get('https://api.tvmaze.com/singlesearch/shows?q=' + item.show + '&embed=episodes');
+            var array = item.title.split(':').pop();
+            var eptitle = array;
+            var settings = {
+                async: true,
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
+                    "trakt-api-version": 2,
+                    "trakt-api-key": "234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b"
+                }};
+            var test = $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/search/episode?query=' + eptitle} ) );
+            test.done(function (result) {
+                //var episodes = result._embedded.episodes;
+                //var obj = $.grep(episodes, function (a) {
+                //    return a.name == eptitle;
+                //});
+                var mkep;
+                if (result.length > 0)
+                {
+                    result.forEach(function(res){
+                        //console.log(res.show.title);
+                        if (res.show.title == item.show)
+                        {
+                            console.log(res.show.title);
+                            var ep = res.episode;
+                            var sh = res.show;
+
+                            mkep = MakeEpisode(item, ep, res.show);
+
+
+                        }
+                    });
+                    if (mkep !== undefined)
+                    {
+                    resolve(mkep);
+                    }
+                    else
+                    {
+                        resolve();
+                    }
+                }
+                else
+                {
+                    resolve();
+                }
             });
             test.error(function (err) {
                 resolve();
@@ -256,8 +293,8 @@
         var Show = {};
         if (ep !== undefined) {
             Show.type = 'Show';
-            Show.showid = sh.externals.thetvdb;
-            Show.name = sh.name;
+            Show.showid = sh.ids.trakt;
+            Show.name = sh.title;
             Show.episodes = [ep];
             Show.episodes[0].watched = item.date;
             //data.episodes.push(episode);
