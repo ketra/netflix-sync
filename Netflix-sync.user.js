@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.1
+// @version      0.2
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -17,7 +17,7 @@
     var header = document.getElementById('hd');
     var element = document.querySelector("li[data-reactid='20']");
     var btn = document.createElement("li");
-    var t = document.createTextNode("Export");
+    var t = document.createTextNode("Sync");
     btn.appendChild(t);
     insertAfter(btn, element);
 
@@ -62,19 +62,55 @@
         }
         DoTraktAuth();
         var watched = GetWatched();
-        fetchMovies(watched);
-        //var History = GetHistory();
+        var Watched;
+        var History;
+        fetchMovies(watched).then(function(res){
+            Watched = res;
+            History = GetHistory().then(function(histo){
+                CompareHistory(Watched, histo);
+            });
+
+        });
+
+    }
+
+    function CompareHistory(watched, history)
+    {
+        var ToSync = [];
+        watched.Shows.forEach(function(show){
+            show.episodes.forEach(function(episode){
+                //console.log(episode);
+                var test =  _.find(history, function(obj) {
+                    if (obj.action != 'scrobble')
+                    {
+                        if (obj.type == 'episode')
+                        {
+                            var epidate = OnlyDate(episode.watched).toISOString();
+                            var histodate =  OnlyDate(obj.watched_at).toISOString();
+                            return obj.episode.title == episode.title &&  epidate == histodate;
+                        }
+                    }
+                });
+                if (test === undefined)
+                {
+                    ToSync.push(episode);
+                }
+            });
+        });
+        MakeJson(ToSync);
+    }
+
+    function OnlyDate(date)
+    {
+        var d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d;
     }
 
     function GetHistory()
     {
         var request = $.get('https://api.trakt.tv/sync/history?limit=10000');
-        var promises =[];
-        promises.push(request);
-        Promise.all(promises).then(function (res) {
-            return(res);
-        });
-
+        return request;
     }
 
     function GetWatched() {
@@ -107,67 +143,71 @@
     }
 
     function fetchMovies(watched) {
-        var promises = [];
-        var data = {
-            viewhistory: new Date().toLocaleString(),
-            Shows: [],
-            Movies: []
-        };
-
-        watched.each(function () {
-            var item = this;
-            if (!isNaN(item.season)) {
-                promises.push(GetEpisode(item)); // push the Promises to our array
-            }
-            else
-            {
-                promises.push(GetMovie(item)); // push the Promises to our array
-            }
-        });
-
-        Promise.all(promises).then(function (res) {
-            //console.log(res);
-            res.forEach(function (result) {
-                //console.log(result);
-                var Show;
-                if (result !== undefined) {
-                    if (result.type == 'Show')
-                    {
-                        try {
-                            Show = _.find(data.Shows, function (obj) {
-                                return obj.showid == result.showid;
-                            });
-                            //console.log(epi);
-                            Show.episodes.push(result.episodes);
-                        }
-                        catch (err) {
-                            //console.log(err);
-                        }
-                        //console.log(epi);
-                        if (Show === undefined) {
-                            data.Shows.push(result);
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            var mov = result.movie;
-                            if (mov !== undefined)
-                            {
-                                data.Movies.push(mov);
-                            }
-                        }
-                        catch(err)
-                        {
-
-                        }
-                    }
+        return new Promise(function (resolve, reject) {
+            var promises = [];
+            var data = {
+                viewhistory: new Date().toLocaleString(),
+                Shows: [],
+                Movies: []
+            };
+            watched.each(function () {
+                var item = this;
+                if (!isNaN(item.season)) {
+                    promises.push(GetEpisode(item)); // push the Promises to our array
+                }
+                else
+                {
+                    promises.push(GetMovie(item)); // push the Promises to our array
                 }
             });
-            MakeJson(data);
-        }).catch(function (err) {
-            console.log(err);
+
+            Promise.all(promises).then(function (res) {
+                //console.log(res);
+                res.forEach(function (result) {
+                    //console.log(result);
+                    var Show;
+                    if (result !== undefined) {
+                        if (result.type == 'Show')
+                        {
+                            try {
+                                Show = _.find(data.Shows, function (obj) {
+                                    return obj.showid == result.showid;
+                                });
+                                //console.log(epi);
+                                Show.episodes.push(result.episodes[0]);
+                            }
+                            catch (err) {
+                                //console.log(err);
+                            }
+                            //console.log(epi);
+                            if (Show === undefined) {
+                                data.Shows.push(result);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var mov = result.movie;
+                                if (mov !== undefined)
+                                {
+                                    data.Movies.push(mov);
+                                }
+                            }
+                            catch(err)
+                            {
+
+                            }
+                        }
+                    }
+                });
+
+                //MakeJson(data);
+                //return data;
+                resolve(data);
+            }).catch(function (err) {
+                console.log(err);
+            });
         });
     }
 
@@ -188,7 +228,7 @@
                     //console.log(res);
                     var mov = res[0];
                     mov.movie.watched = item.date;
-                    console.log(mov);
+                    //console.log(mov);
                     resolve(mov);
                 }
                 else
@@ -278,7 +318,7 @@
                         //console.log(res.show.title);
                         if (res.show.title == item.show)
                         {
-                            console.log(res.show.title);
+                            //console.log(res.show.title);
                             var ep = res.episode;
                             var sh = res.show;
 
@@ -345,6 +385,10 @@
 
         while (currentTime + miliseconds >= new Date().getTime()) {
         }
+    }
+    function Wait(Message)
+    {
+        console.log(Message);
     }
 
 
