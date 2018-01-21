@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.6
+// @version      0.7
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -47,7 +47,7 @@
         fileref.setAttribute('type','text/css');
         fileref.setAttribute('href','https://rawgit.com/Semantic-Org/UI-Loader/master/loader.min.css');
         document.getElementsByTagName('head')[0].appendChild(fileref);
-        var htmldata = '<div id="loader" class="ui segment">  <div class="ui active inverted dimmer">    <div class="ui text loader">Syncing</div>  </div>  <p></p></div>';
+        var htmldata = '<div id="loader" class="ui segment">  <div class="ui active inverted dimmer">    <div class="ui text massive loader">Syncing</div>  </div>  <p></p></div>';
         $(htmldata).insertAfter('#hdSpace');
     }
     function HideLoader()
@@ -108,7 +108,9 @@
             //$(".trakt-dialog .trakt-sync-results").show();
             $.notify('Synced Episodes: ' + data.added.episodes,'success');
             $.notify('Synced Movies: ' + data.added.movies,'success');
+            if (data.not_found.episodes.length)
             $.notify('Not Synced Episodes: ' + data.not_found.episodes.length,'error');
+            if (data.not_found.movies.length)
             $.notify('Not Synced Movies: ' + data.not_found.movies.length,'error');
 
             console.log('Synced Episodes: ' + data.added.episodes);
