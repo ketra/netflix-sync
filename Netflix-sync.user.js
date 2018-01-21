@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.4
+// @version      0.5
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -18,11 +18,14 @@
     var header = document.getElementById('hd');
     var element = document.querySelector("li[data-reactid='20']");
     var btn = document.createElement("li");
-    var t = document.createTextNode("Sync");
-    btn.appendChild(t);
+    var a = document.createElement("a");
+    var t = document.createTextNode("Sync To Trakt");
+    a.href='#';
+    a.appendChild(t);
+    btn.appendChild(a);
     insertAfter(btn, element);
 
-    btn.addEventListener("click", function () {
+    a.addEventListener("click", function () {
         Go();
     }, false);
 
