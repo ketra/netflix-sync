@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.2
+// @version      0.3
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -56,48 +56,106 @@
             alert("This sync script must be injected into the the netflix activity page.");
             throw ("This sync script must be injected into the the netflix activity page.");
         }
-        if ($(".trakt-dialog").length > 0) {
-            alert("This sync script was already executed. Please reload the page and try again.");
-            throw ("This sync script was already executed. Please reload the page and try again.");
-        }
         DoTraktAuth();
         var watched = GetWatched();
         var Watched;
         var History;
         fetchMovies(watched).then(function(res){
             Watched = res;
-            History = GetHistory().then(function(histo){
-                CompareHistory(Watched, histo);
+            GetHistory().then(function(histo){
+                History = histo;
+                CompareHistory(Watched, histo).then(function(data) {BuildSync(data);});
             });
 
         });
+    }
+
+    function BuildSync(data)
+    {
+        var SyncBody = {
+            episodes : [],
+            movies : []
+        };
+        data.forEach(function(dat){
+            if (dat.type == 'episode')
+            {
+                var epi = {};
+                epi.title = dat.title;
+                epi.ids = dat.ids;
+                epi.watched_at = dat.watched;
+                SyncBody.episodes.push(epi);
+            }
+            if (dat.type == 'movie')
+            {
+                var mov = {};
+                mov.title = dat.title;
+                mov.watched_at = dat.watched;
+                mov.ids = dat.ids;
+                SyncBody.movies.push(mov);
+            }
+        });
+        MakeJson(SyncBody);
+        console.log(SyncBody);
 
     }
 
     function CompareHistory(watched, history)
     {
-        var ToSync = [];
-        watched.Shows.forEach(function(show){
-            show.episodes.forEach(function(episode){
-                //console.log(episode);
-                var test =  _.find(history, function(obj) {
+        return new Promise(function (resolve, reject) {
+            var ToSync = [];
+            var TotalEpis=0;
+            watched.Shows.forEach(function(show){
+                show.episodes.forEach(function(episode){
+                    TotalEpis++;
+                    //console.log(episode);
+                    var test =  _.find(history, function(obj) {
+                        if (obj.action != 'scrobble')
+                        {
+                            if (obj.type == 'episode')
+                            {
+                                if  (obj.episode.title == episode.title)
+                                {
+                                    if (compareDate(episode.watched, obj.watched_at))
+                                    {
+                                        return obj;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    if (test === undefined)
+                    {
+                        ToSync.push(episode);
+                    }
+                });
+            });
+            watched.Movies.forEach(function(movie){
+                var movtest =  _.find(history, function(obj) {
                     if (obj.action != 'scrobble')
                     {
-                        if (obj.type == 'episode')
+                        if (obj.type == 'movie')
                         {
-                            var epidate = OnlyDate(episode.watched).toISOString();
-                            var histodate =  OnlyDate(obj.watched_at).toISOString();
-                            return obj.episode.title == episode.title &&  epidate == histodate;
+                            if  (obj.movie.title == movie.title)
+                            {
+                                if (compareDate(movie.watched, obj.watched_at))
+                                {
+                                    return obj;
+                                }
+                            }
                         }
                     }
                 });
-                if (test === undefined)
+                if (movtest === undefined)
                 {
-                    ToSync.push(episode);
+                    ToSync.push(movie);
                 }
             });
+
+            console.log(ToSync);
+            console.log(TotalEpis);
+            //MakeJson(ToSync);
+            resolve(ToSync);
         });
-        MakeJson(ToSync);
     }
 
     function OnlyDate(date)
@@ -105,6 +163,21 @@
         var d = new Date(date);
         d.setHours(0, 0, 0, 0);
         return d;
+    }
+    function compareDate(date1, date2)
+    {
+        var epidate = OnlyDate(date1).toISOString();
+        var histodate =  OnlyDate(date2).toISOString();
+        if (epidate == histodate)
+        {
+            //console.log(epidate + ' equals ' + histodate);
+            return true;
+        }
+        else
+        {
+            //console.log(epidate + ' does not equals ' + histodate);
+            return false;
+        }
     }
 
     function GetHistory()
@@ -282,13 +355,14 @@
             });
         } else
             alert("Unexpected error authenticating.");
-
+        var Bearer = document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1");
+        console.log(Bearer);
         $.ajaxSetup({
             async: true,
             dataType: "json",
             contentType: "application/json",
             headers: {
-                "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
+                "Authorization": "Bearer " + Bearer,
                 "trakt-api-version": 2,
                 "trakt-api-key": "c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8"
             }
@@ -355,6 +429,7 @@
             Show.showid = sh.ids.trakt;
             Show.name = sh.title;
             Show.episodes = [ep];
+            Show.episodes[0].type = 'episode';
             Show.episodes[0].watched = item.date;
             //data.episodes.push(episode);
             //episode);
