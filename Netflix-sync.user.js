@@ -1,15 +1,17 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.5
+// @version      0.6
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
 // @updateURL    https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/Netflix-sync.user.js
 // @downloadURL  https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/Netflix-sync.user.js
 // @require http://code.jquery.com/jquery-1.12.4.min.js
+// @require https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js
 // @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
 // @require https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js
 // ==/UserScript==
 
 (function () {
@@ -38,6 +40,21 @@
         });
     }
 
+    function ShowLoader()
+    {
+        var fileref=document.createElement('link');
+        fileref.setAttribute('rel','stylesheet');
+        fileref.setAttribute('type','text/css');
+        fileref.setAttribute('href','https://rawgit.com/Semantic-Org/UI-Loader/master/loader.min.css');
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+        var htmldata = '<div id="loader" class="ui segment">  <div class="ui active inverted dimmer">    <div class="ui text loader">Syncing</div>  </div>  <p></p></div>';
+        $(htmldata).insertAfter('#hdSpace');
+    }
+    function HideLoader()
+    {
+        $("#loader").hide();
+    }
+
     function AsyncStringify(text)
     {
         return new Promise(function (resolve, reject) {
@@ -54,7 +71,6 @@
         });
 
     }
-
     function Go()
     {
         $ = jQuery;
@@ -64,6 +80,8 @@
             throw ("This sync script must be injected into the the netflix activity page.");
         }
         DoTraktAuth();
+        ShowLoader();
+
         var watched = GetWatched();
         var Watched;
         var History;
@@ -83,9 +101,10 @@
 
     function SyncToTrakt(data)
     {
+        console.log(data);
         $.post("https://api.trakt.tv/sync/history", JSON.stringify(data), function(data) {
-            //console.log(data);
-
+            console.log(data);
+            HideLoader();
             //$(".trakt-dialog .trakt-sync-results").show();
             $.notify('Synced Episodes: ' + data.added.episodes,'success');
             $.notify('Synced Movies: ' + data.added.movies,'success');
@@ -136,7 +155,7 @@
             watched.Shows.forEach(function(show){
                 show.episodes.forEach(function(episode){
                     TotalEpis++;
-                    //console.log(episode);
+                    console.log(episode);
                     var test =  _.find(history, function(obj) {
                         if (obj.action != 'scrobble')
                         {
@@ -310,7 +329,7 @@
                     }
                 });
 
-                //MakeJson(data);
+                console.log(data);
                 //return data;
                 resolve(data);
             }).catch(function (err) {
