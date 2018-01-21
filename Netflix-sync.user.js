@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.3
+// @version      0.4
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -9,6 +9,7 @@
 // @downloadURL  https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/Netflix-sync.user.js
 // @require http://code.jquery.com/jquery-1.12.4.min.js
 // @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
+// @require https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js
 // ==/UserScript==
 
 (function () {
@@ -26,14 +27,16 @@
     }, false);
 
 
-    function MakeJson(dat) {
+    function MakeJson(dat)
+    {
         console.log("Making JsonFile");
         AsyncStringify(dat).then(function (jsonArray) {
             download(jsonArray, 'ViewHistory_' + new Date().toLocaleString() + '.json', 'text/plain');
         });
     }
 
-    function AsyncStringify(text) {
+    function AsyncStringify(text)
+    {
         return new Promise(function (resolve, reject) {
             try {
 
@@ -49,7 +52,8 @@
 
     }
 
-    function Go() {
+    function Go()
+    {
         $ = jQuery;
 
         if (!document.location.href.startsWith("https://www.netflix.com/viewingactivity")) {
@@ -64,39 +68,61 @@
             Watched = res;
             GetHistory().then(function(histo){
                 History = histo;
-                CompareHistory(Watched, histo).then(function(data) {BuildSync(data);});
+                CompareHistory(Watched, histo).then(function(data) {BuildSync(data).then(function(data){
+                    //MakeJson(data);
+                    //console.log(data);
+                    SyncToTrakt(data);
+                });});
             });
 
         });
     }
 
+    function SyncToTrakt(data)
+    {
+        $.post("https://api.trakt.tv/sync/history", JSON.stringify(data), function(data) {
+            //console.log(data);
+
+            //$(".trakt-dialog .trakt-sync-results").show();
+            $.notify('Synced Episodes: ' + data.added.episodes,'success');
+            $.notify('Synced Movies: ' + data.added.movies,'success');
+            $.notify('Not Synced Episodes: ' + data.not_found.episodes.length,'error');
+            $.notify('Not Synced Movies: ' + data.not_found.movies.length,'error');
+
+            console.log('Synced Episodes: ' + data.added.episodes);
+            console.log('Synced Movies: ' + data.added.movies);
+            console.log('Not Synced Episodes: ' + data.not_found.episodes.length);
+            console.log('Not Synced Movies: ' + data.not_found.movies.length);
+        });
+    }
+
     function BuildSync(data)
     {
-        var SyncBody = {
-            episodes : [],
-            movies : []
-        };
-        data.forEach(function(dat){
-            if (dat.type == 'episode')
-            {
-                var epi = {};
-                epi.title = dat.title;
-                epi.ids = dat.ids;
-                epi.watched_at = dat.watched;
-                SyncBody.episodes.push(epi);
-            }
-            if (dat.type == 'movie')
-            {
-                var mov = {};
-                mov.title = dat.title;
-                mov.watched_at = dat.watched;
-                mov.ids = dat.ids;
-                SyncBody.movies.push(mov);
-            }
+        return new Promise(function(resolve,reject){
+            var SyncBody = {
+                episodes : [],
+                movies : []
+            };
+            data.forEach(function(dat){
+                if (dat.type == 'episode')
+                {
+                    var epi = {};
+                    epi.title = dat.title;
+                    epi.ids = dat.ids;
+                    epi.watched_at = dat.watched;
+                    SyncBody.episodes.push(epi);
+                }
+                if (dat.type == 'movie')
+                {
+                    var mov = {};
+                    mov.title = dat.title;
+                    mov.watched_at = dat.watched;
+                    mov.ids = dat.ids;
+                    SyncBody.movies.push(mov);
+                }
+            });
+            resolve(SyncBody);
         });
-        MakeJson(SyncBody);
-        console.log(SyncBody);
-
     }
 
     function CompareHistory(watched, history)
@@ -145,14 +171,15 @@
                         }
                     }
                 });
+                var test = movtest;
                 if (movtest === undefined)
                 {
                     ToSync.push(movie);
                 }
             });
 
-            console.log(ToSync);
-            console.log(TotalEpis);
+            //console.log(ToSync);
+            //console.log(TotalEpis);
             //MakeJson(ToSync);
             resolve(ToSync);
         });
@@ -164,6 +191,7 @@
         d.setHours(0, 0, 0, 0);
         return d;
     }
+
     function compareDate(date1, date2)
     {
         var epidate = OnlyDate(date1).toISOString();
@@ -186,7 +214,8 @@
         return request;
     }
 
-    function GetWatched() {
+    function GetWatched()
+    {
         // Load the list of watched shows from netflix.
         var watched = $(".retableRow").map(function () {
             var date = $(".date", this).text();
@@ -199,6 +228,8 @@
             var isShow = !title ? false : true;
             title = isShow ? title.replace(/^(.*)"$/, "$1") : $(".title", this).text();
             season = parseInt(season);
+            if (text.startsWith('Penn & Teller'))
+            { season = 0; }
 
             show = show.replace(" (U.S.)", "");
             date = decode_date(date);
@@ -215,7 +246,8 @@
         return watched;
     }
 
-    function fetchMovies(watched) {
+    function fetchMovies(watched)
+    {
         return new Promise(function (resolve, reject) {
             var promises = [];
             var data = {
@@ -284,7 +316,8 @@
         });
     }
 
-    function GetMovie(item) {
+    function GetMovie(item)
+    {
         return new Promise(function (resolve, reject) {
             var settings = {
                 async: true,
@@ -300,6 +333,7 @@
                 {
                     //console.log(res);
                     var mov = res[0];
+                    mov.movie.type = 'movie';
                     mov.movie.watched = item.date;
                     //console.log(mov);
                     resolve(mov);
@@ -313,7 +347,8 @@
         });
     }
 
-    function DoTraktAuth() {
+    function DoTraktAuth()
+    {
         // Get authentication status.
         var has_access_token = document.cookie.search(/access_token/) >= 0;
         var has_refresh_token = document.cookie.search(/refresh_token/) >= 0;
@@ -369,7 +404,8 @@
         });
     }
 
-    function GetEpisode(item) {
+    function GetEpisode(item)
+    {
         return new Promise(function (resolve, reject) {
             //var test = $.get('https://api.tvmaze.com/singlesearch/shows?q=' + item.show + '&embed=episodes');
             var array = item.title.split(':').pop();
@@ -422,7 +458,8 @@
 
     }
 
-    function MakeEpisode(item, ep, sh) {
+    function MakeEpisode(item, ep, sh)
+    {
         var Show = {};
         if (ep !== undefined) {
             Show.type = 'Show';
@@ -437,7 +474,8 @@
         return Show;
     }
 
-    function download(text, name, type) {
+    function download(text, name, type)
+    {
         var a = document.createElement("a");
         var file = new Blob([text], { type: type });
         a.href = URL.createObjectURL(file);
@@ -445,22 +483,26 @@
         a.click();
     }
 
-    function decode_date(date_str) {
+    function decode_date(date_str)
+    {
         var [day, month, year] = date_str.split("/");
         year = parseInt(year) > parseInt(new Date().getFullYear().toString().substring(2)) ? year : "20" + year;
         return new Date(year, month - 1, day);
     }
 
-    function insertAfter(newNode, referenceNode) {
+    function insertAfter(newNode, referenceNode)
+    {
         referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
     }
 
-    function sleep(miliseconds) {
+    function sleep(miliseconds)
+    {
         var currentTime = new Date().getTime();
 
         while (currentTime + miliseconds >= new Date().getTime()) {
         }
     }
+
     function Wait(Message)
     {
         console.log(Message);
