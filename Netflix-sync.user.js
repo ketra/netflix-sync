@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.10
+// @version      0.10.a
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -234,7 +234,17 @@
 
     function GetHistory()
     {
-        var request = $.get('https://api.trakt.tv/sync/history?limit=10000');
+        var settings = {
+                async: true,
+                dataType: "json",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
+                    "trakt-api-version": 2,
+                    "trakt-api-key": "0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce"
+                }};
+        var request = $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/sync/history?limit=10000'} ) );
+        //var request = $.get('https://api.trakt.tv/sync/history?limit=10000');
         return request;
     }
 
