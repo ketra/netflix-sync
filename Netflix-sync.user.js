@@ -345,7 +345,7 @@
         return new Promise(function (resolve, reject) {
             var settings = {
                 async: true,
-                dataType: "jsonp",
+                dataType: "json",
                 contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
@@ -418,7 +418,7 @@
         console.log(Bearer);
         $.ajaxSetup({
             async: true,
-            dataType: "jsonp",
+            dataType: "json",
             contentType: "application/json",
             headers: {
                 "Authorization": "Bearer " + Bearer,
@@ -436,7 +436,7 @@
             var eptitle = array;
             var settings = {
                 async: true,
-                dataType: "jsonp",
+                dataType: "json",
                 contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
