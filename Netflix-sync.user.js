@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.12
+// @version      1.0
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -23,6 +23,10 @@
     var btn = document.createElement("li");
     var a = document.createElement("a");
     var t = document.createTextNode("Sync To Trakt");
+    LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css');
+    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/dimmer.css');
+    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/modal.css');
+    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/progress.css');
     a.href='#';
     a.appendChild(t);
     btn.appendChild(a);
@@ -53,19 +57,24 @@
 
     function ShowLoader()
     {
-        LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Loader/master/loader.min.css');
-        LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Progress/master/progress.css');
-        LoadStyleSheet('https://raw.githubusercontent.com/Semantic-Org/UI-Modal/master/modal.min.css');
-        var htmldata = '<div id="loader" class="ui basic modal"><div class="content"><div class="ui indicating progress" data-value="1" data-total="5" id="example5"><div class="bar"></div><div class="label">Syncing History</div></div></div></div>';
-        $(htmldata).insertAfter('#hdSpace');
+        //LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Loader/master/loader.min.css');
+        //LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Progress/master/progress.css');
+        var htmldata = '<div id="loader" class="modal ui ">\
+<div class="content center">\
+<div class="ui big progress" data-value="1" data-total="5" id="example5">\
+<div class="bar">\
+<div class="progress"></div></div>\
+<div class="label">Syncing History</div></div></div></div>';
+        $(htmldata).insertAfter('#appMountPoint');
         $('#loader').show();
-        $('#example5').progress({
+        $('#appMountPoint').dimmer('show');
+        $('#example5')
+            .progress({
+            label: 'ratio',
             text: {
-                active  : 'Step {value} of {total} Sync',
-                success : 'Sync Done!'
+                ratio: 'Step {value} of {total}'
             }
-        })
-        ;
+        });
     }
     function Step()
     {
@@ -76,6 +85,7 @@
     function HideLoader()
     {
         $("#loader").hide();
+        $('#appMountPoint').dimmer('hide');
     }
 
     function AsyncStringify(text)
