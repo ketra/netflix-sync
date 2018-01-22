@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      1.1
+// @version      1.2
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -27,8 +27,8 @@
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/dimmer.css');
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/modal.css');
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/progress.css');
-    var htmldata = '<div id="btn" class="ui choice rating animated" tabindex="0">\
-<div class="visible content">Sync To Trakt</div>\
+    var htmldata = '<div id="btn" class="ui choice">\
+<div class="content center"><i class="podcast icon"></i> Sync</div>\
 </div>';
     $(htmldata).appendTo('.pageToggle');
     //a.href='#';
