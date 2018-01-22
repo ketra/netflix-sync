@@ -5,8 +5,8 @@
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
-// @updateURL    https://rawgit.com/ketra/netflix-sync/Netflix-sync.user.js
-// @downloadURL  https://rawgit.com/ketra/netflix-sync/Netflix-sync.user.js
+// @updateURL    https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
+// @downloadURL  https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
 // @require http://code.jquery.com/jquery-1.12.4.min.js
 // @require https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js
 // @require https://rawgit.com/lodash/lodash/4.17.4/dist/lodash.core.js
