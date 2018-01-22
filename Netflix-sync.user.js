@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         Netflix-sync
-// @namespace    https://github.com/ketra/netflix-sync/tree/ExportTest
-// @version      0.7
+// @namespace    https://github.com/ketra/netflix-sync
+// @version      0.8
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
-// @updateURL    https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/Netflix-sync.user.js
-// @downloadURL  https://raw.githubusercontent.com/ketra/netflix-sync/ExportTest/Netflix-sync.user.js
+// @updateURL    https://rawgit.com/ketra/netflix-sync/Netflix-sync.user.js
+// @downloadURL  https://rawgit.com/ketra/netflix-sync/Netflix-sync.user.js
 // @require http://code.jquery.com/jquery-1.12.4.min.js
 // @require https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js
-// @require https://raw.githubusercontent.com/lodash/lodash/4.17.4/dist/lodash.core.js
+// @require https://rawgit.com/lodash/lodash/4.17.4/dist/lodash.core.js
 // @require https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js
 // ==/UserScript==
