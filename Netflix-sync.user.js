@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      1.0
+// @version      1.1
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -17,24 +17,31 @@
 
 (function () {
     'use strict';
-
-    var header = document.getElementById('hd');
-    var element = document.querySelector("li[data-reactid='20']");
-    var btn = document.createElement("li");
-    var a = document.createElement("a");
-    var t = document.createTextNode("Sync To Trakt");
+    $ = jQuery;
+    //var header = document.getElementById('hd');
+    //var element = document.querySelector("li[data-reactid='20']");
+    //var btn = document.createElement("li");
+    //var a = document.createElement("a");
+    //var t = document.createTextNode("Sync To Trakt");
     LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css');
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/dimmer.css');
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/modal.css');
     //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/progress.css');
-    a.href='#';
-    a.appendChild(t);
-    btn.appendChild(a);
-    insertAfter(btn, element);
-
-    a.addEventListener("click", function () {
+    var htmldata = '<div id="btn" class="ui choice rating animated" tabindex="0">\
+<div class="visible content">Sync To Trakt</div>\
+</div>';
+    $(htmldata).appendTo('.pageToggle');
+    //a.href='#';
+    //a.appendChild(t);
+    //btn.appendChild(a);
+    //insertAfter(btn, element);
+    $('#btn').click(function () {
         Go();
-    }, false);
+    });
+
+    //a.addEventListener("click", function () {
+    //    Go();
+    //}, false);
 
 
     function MakeJson(dat)
@@ -61,7 +68,7 @@
         //LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Progress/master/progress.css');
         var htmldata = '<div id="loader" class="modal ui ">\
 <div class="content center">\
-<div class="ui big red progress" data-value="1" data-total="5" id="example5">\
+<div class="ui big progress" data-value="1" data-total="5" id="example5">\
 <div class="bar">\
 <div class="progress"></div></div>\
 <div class="label">Syncing History</div></div></div></div>';
@@ -105,7 +112,6 @@
     }
     function Go()
     {
-        $ = jQuery;
 
         if (!document.location.href.startsWith("https://www.netflix.com/viewingactivity")) {
             alert("This sync script must be injected into the the netflix activity page.");
