@@ -61,7 +61,7 @@
         //LoadStyleSheet('https://rawgit.com/Semantic-Org/UI-Progress/master/progress.css');
         var htmldata = '<div id="loader" class="modal ui ">\
 <div class="content center">\
-<div class="ui big progress" data-value="1" data-total="5" id="example5">\
+<div class="ui big red progress" data-value="1" data-total="5" id="example5">\
 <div class="bar">\
 <div class="progress"></div></div>\
 <div class="label">Syncing History</div></div></div></div>';
