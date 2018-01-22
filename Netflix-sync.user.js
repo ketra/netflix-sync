@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      0.8
+// @version      0.9
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -350,7 +350,7 @@
                 headers: {
                     "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
                     "trakt-api-version": 2,
-                    "trakt-api-key": "234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b"
+                    "trakt-api-key": "0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce"
                 }};
             $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/search/movie?query=' + item.title} ) ).done(function(res) {
                 if (res && res.length)
@@ -381,7 +381,7 @@
 
         // Prompt for trakt.tv login.
         if (!has_access_token && !has_refresh_token && !has_code)
-            window.location = "https://trakt.tv/oauth/authorize?response_type=code&client_id=234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b&redirect_uri=https%3A%2F%2Fwww.netflix.com%2Fviewingactivity";
+            window.location = "https://trakt.tv/oauth/authorize?response_type=code&client_id=0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce&redirect_uri=https%3A%2F%2Fwww.netflix.com%2Fviewingactivity";
 
         // Run the tool.
         else if (has_access_token) {
@@ -391,8 +391,8 @@
             if (has_refresh_token)
                 var body = {
                     'refresh_token': document.cookie.replace(/^.*refresh_token=([^;]+).*$/, "$1"),
-                    'client_id': '234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b',
-                    'client_secret': '00f363650b9b1e3523ad66fe8e5728a7b733a365e4929c4015a39abcfe3d15bf',
+                    'client_id': '0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce',
+                    'client_secret': '248956fb1e2a19a25ac26fbe86e4d23c7793416978c6ec6b1b378d187b2d4d7f',
                     'redirect_uri': 'https://www.netflix.com/viewingactivity',
                     'grant_type': 'refresh_token'
                 };
@@ -400,8 +400,8 @@
             else if (has_code)
                 var body = {
                     'code': window.location.search.replace(/^.*code=([^&]+).*$/, "$1"),
-                    'client_id': '234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b',
-                    'client_secret': '00f363650b9b1e3523ad66fe8e5728a7b733a365e4929c4015a39abcfe3d15bf',
+                    'client_id': '0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce',
+                    'client_secret': '248956fb1e2a19a25ac26fbe86e4d23c7793416978c6ec6b1b378d187b2d4d7f',
                     'redirect_uri': 'https://www.netflix.com/viewingactivity',
                     'grant_type': 'authorization_code'
                 };
@@ -423,7 +423,7 @@
             headers: {
                 "Authorization": "Bearer " + Bearer,
                 "trakt-api-version": 2,
-                "trakt-api-key": "c14f3c7ac7b41e9f45cb07b4d314b454647c36365d32d151cf8193e5ff3b2fd8"
+                "trakt-api-key": "0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce"
             }
         });
     }
@@ -441,7 +441,7 @@
                 headers: {
                     "Authorization": "Bearer " + document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1"),
                     "trakt-api-version": 2,
-                    "trakt-api-key": "234507383f34b4a91d740f947f799cfa899623787ec7115291298a285fab0a8b"
+                    "trakt-api-key": "0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce"
                 }};
             var test = $.ajax( $.extend( settings, {"url":'https://api.trakt.tv/search/episode?query=' + eptitle} ) );
             test.done(function (result) {
