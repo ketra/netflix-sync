@@ -1,4 +1,3 @@
-    'use strict';
     $ = jQuery;
     //var header = document.getElementById('hd');
     //var element = document.querySelector("li[data-reactid='20']");
