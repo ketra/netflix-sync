@@ -12,6 +12,4 @@ javascript:function load(filename){
  }
  document.getElementsByTagName('head')[0].appendChild(fileref);
 }
-        load('https://cdn.rawgit.com/ketra/netflix-sync/master/jquery-ui.js', 'js');
-        load('https://cdn.rawgit.com/ketra/netflix-sync/master/netflix-sync.js','js');
-        load('https://cdn.rawgit.com/ketra/netflix-sync/master/netflix-sync.css','css');
+        load('https://rawgit.com/ketra/netflix-sync/master/Netflix-sync.user.js', 'js');
