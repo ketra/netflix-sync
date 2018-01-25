@@ -1,9 +1,14 @@
 
-    //var header = document.getElementById('hd');
-    //var element = document.querySelector("li[data-reactid='20']");
-    //var btn = document.createElement("li");
-    //var a = document.createElement("a");
-    //var t = document.createTextNode("Sync To Trakt");
+    //////////////////////////////////////////////////////////////////////////////////////
+    //  
+    //
+    // @Author: Kevin Traa
+    // @Version 0.1
+    // @description Will help sync history to Trakt
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////////
+
     LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css');
     LoadJavaScript('http://code.jquery.com/jquery-1.12.4.min.js');
     LoadJavaScript('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js');
@@ -50,7 +55,7 @@
     {
         var fileref=document.createElement('script');
         fileref.setAttribute('type','text/javascript');
-        fileref.setAttribute('src',filename);
+        fileref.setAttribute('src',link);
 
         document.getElementsByTagName('head')[0].appendChild(fileref);
     }
