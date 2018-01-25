@@ -1,4 +1,4 @@
-    $ = jQuery;
+
     //var header = document.getElementById('hd');
     //var element = document.querySelector("li[data-reactid='20']");
     //var btn = document.createElement("li");
@@ -10,7 +10,7 @@
     LoadJavaScript('https://rawgit.com/lodash/lodash/4.17.4/dist/lodash.core.js');
     LoadJavaScript('https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js');
     LoadJavaScript('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.js');
-
+    $ = jQuery;
     var htmldata = '<div id="btn" class="ui choice">\
 <div class="content center"><i class="podcast icon"></i> Sync</div>\
 </div>';
