@@ -1,21 +1,3 @@
-// ==UserScript==
-// @name         Netflix-sync
-// @namespace    https://github.com/ketra/netflix-sync
-// @version      1.2
-// @description  Script to Sync Netflix History to Trakt.
-// @author       Ketra
-// @match        https://www.netflix.com/viewingactivity*
-// @updateURL    https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
-// @downloadURL  https://github.com/ketra/netflix-sync/raw/master/Netflix-sync.user.js
-// @require http://code.jquery.com/jquery-1.12.4.min.js
-// @require https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js
-// @require https://rawgit.com/lodash/lodash/4.17.4/dist/lodash.core.js
-// @require https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js
-// @require https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.js
-
-// ==/UserScript==
-
-(function () {
     'use strict';
     $ = jQuery;
     //var header = document.getElementById('hd');
@@ -24,9 +6,12 @@
     //var a = document.createElement("a");
     //var t = document.createTextNode("Sync To Trakt");
     LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/dimmer.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/modal.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/progress.css');
+    LoadJavaScript('http://code.jquery.com/jquery-1.12.4.min.js');
+    LoadJavaScript('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js');
+    LoadJavaScript('https://rawgit.com/lodash/lodash/4.17.4/dist/lodash.core.js');
+    LoadJavaScript('https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js');
+    LoadJavaScript('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.js');
+
     var htmldata = '<div id="btn" class="ui choice">\
 <div class="content center"><i class="podcast icon"></i> Sync</div>\
 </div>';
@@ -58,6 +43,15 @@
         fileref.setAttribute('rel','stylesheet');
         fileref.setAttribute('type','text/css');
         fileref.setAttribute('href',link);
+
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+    }
+    
+    function LoadJavaScript(link)
+    {
+        var fileref=document.createElement('script');
+        fileref.setAttribute('type','text/javascript');
+        fileref.setAttribute('src',filename);
 
         document.getElementsByTagName('head')[0].appendChild(fileref);
     }
@@ -575,6 +569,3 @@
     {
         console.log(Message);
     }
-
-
-}) ();
