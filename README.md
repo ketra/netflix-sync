@@ -45,22 +45,19 @@ load('https://rawgit.com/ketra/netflix-sync/master/NetflixSyncBM.js', 'js');">Je
 >
 >You can view the entire script [here](https://www.inkonit.com/netflix/netflix-sync.js) first if you wish. The bookmarklet code is an easy way to inject this code into your netflix page, you could also run this code manually in your browser console.
 >
->```javascript
->function load(filename){
-> if(filename.endsWith('.js')){
->  var fileref=document.createElement('script');
->  fileref.setAttribute('type','text/javascript');
->  fileref.setAttribute('src',filename);
-> }
-> else if (filename.endsWith('.css')){
->  var fileref=document.createElement('link');
->  fileref.setAttribute('rel','stylesheet');
->  fileref.setAttribute('type','text/css');
->  fileref.setAttribute('href',filename);
-> }
-> document.getElementsByTagName('head')[0].appendChild(fileref);
->}
->load('https://code.jquery.com/ui/1.12.1/jquery-ui.js', 'js');
->load('https://www.inkonit.com/netflix/netflix-sync.js','js');
->load('https://www.inkonit.com/netflix/netflix-sync.css','css');
+>```javascript:function load(filename){
+ if(filename.endsWith('.js')){
+  var fileref=document.createElement('script');
+  fileref.setAttribute('type','text/javascript');
+  fileref.setAttribute('src',filename);
+ }
+ else if (filename.endsWith('.css')){
+  var fileref=document.createElement('link');
+  fileref.setAttribute('rel','stylesheet');
+  fileref.setAttribute('type','text/css');
+  fileref.setAttribute('href',filename);
+ }
+ document.getElementsByTagName('head')[0].appendChild(fileref);
+}
+load('https://rawgit.com/ketra/netflix-sync/master/NetflixSyncBM.js', 'js');
 >```
