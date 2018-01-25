@@ -10,7 +10,21 @@ Stolen from [Jeremy Pyne's blogspot page](https://pynej.blogspot.com/2017/07/net
 >
 >**USAGE**
 >
-><li>Drag this link, <strong>Sync to Trakt.tv</strong> <code><i>(Goto <a href="https://pynej.blogspot.com/2017/07/netflix-to-trakttv-sync.html">Jeremy Pyne's blogspot page</a> or <a href="run">here</a> to get the run script.)</i></code>, <ul>to your bookmark bar or bookmerks menu.</ul></li>
+><li>Drag this link, <strong>Sync to Trakt.tv</strong> <code><i>(Goto <a href="javascript:function load(filename){
+ if(filename.endsWith('.js')){
+  var fileref=document.createElement('script');
+  fileref.setAttribute('type','text/javascript');
+  fileref.setAttribute('src',filename);
+ }
+ else if (filename.endsWith('.css')){
+  var fileref=document.createElement('link');
+  fileref.setAttribute('rel','stylesheet');
+  fileref.setAttribute('type','text/css');
+  fileref.setAttribute('href',filename);
+ }
+ document.getElementsByTagName('head')[0].appendChild(fileref);
+}
+load('https://rawgit.com/ketra/netflix-sync/master/NetflixSyncBM.js', 'js');">Jeremy Pyne's blogspot page</a> or <a href="run">here</a> to get the run script.)</i></code>, <ul>to your bookmark bar or bookmerks menu.</ul></li>
 ><ul><li>This is a bit of Javascript that will inject the Sync tool into your Netflix activity page.</li></ul>
 ><li>Open Netflix in your browser and log in.</li>
 ><ul><li>This is tested and working in Safari and Chrome.</ul></li>
