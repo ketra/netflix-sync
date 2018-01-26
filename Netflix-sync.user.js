@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Netflix-sync
 // @namespace    https://github.com/ketra/netflix-sync
-// @version      1.2
+// @version      1.3
 // @description  Script to Sync Netflix History to Trakt.
 // @author       Ketra
 // @match        https://www.netflix.com/viewingactivity*
@@ -18,30 +18,78 @@
 (function () {
     'use strict';
     $ = jQuery;
-    //var header = document.getElementById('hd');
-    //var element = document.querySelector("li[data-reactid='20']");
-    //var btn = document.createElement("li");
-    //var a = document.createElement("a");
-    //var t = document.createTextNode("Sync To Trakt");
     LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/dimmer.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/modal.css');
-    //LoadStyleSheet('https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/components/progress.css');
     var htmldata = '<div id="btn" class="ui choice">\
 <div class="content center"><i class="podcast icon"></i> Sync</div>\
 </div>';
     $(htmldata).appendTo('.pageToggle');
-    //a.href='#';
-    //a.appendChild(t);
-    //btn.appendChild(a);
-    //insertAfter(btn, element);
     $('#btn').click(function () {
-        Go();
+        DoTraktAuth().then(function(){
+            Go();
+        });
     });
 
-    //a.addEventListener("click", function () {
-    //    Go();
-    //}, false);
+
+    var action = GetURLParameter('action');
+    var code = GetURLParameter('code');
+
+    if (document.location.href.startsWith("https://www.netflix.com/viewingactivity")) {
+        if (code!== undefined && action === undefined)
+            action = "Auth";
+        switch(action)
+        {
+            case "Sync":
+                               setTimeout(function(){DoTraktAuth().then(function(){
+                    Go();
+                });
+                                     }, 3000);
+                break;
+            case "Auth":
+                setTimeout(function(){DoTraktAuth().then(function(){
+                    redirect('https://www.netflix.com/viewingactivity?action=refresh');
+                });
+                                     }, 3000);
+                break;
+            case "refresh":
+                redirect('https://www.netflix.com/viewingactivity?action=Sync');
+                break;
+            default:
+                break;
+        }
+    }
+
+    function GetURLParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }
+
+    function redirect (url) {
+        var ua        = navigator.userAgent.toLowerCase(),
+            isIE      = ua.indexOf('msie') !== -1,
+            version   = parseInt(ua.substr(4, 2), 10);
+
+        // Internet Explorer 8 and lower
+        if (isIE && version < 9) {
+            var link = document.createElement('a');
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        // All other browsers can use the standard window.location.href (they don't lose HTTP_REFERER like Internet Explorer 8 & lower does)
+        else {
+            window.location.href = url;
+        }
+    }
 
 
     function MakeJson(dat)
@@ -118,7 +166,6 @@
             throw ("This sync script must be injected into the the netflix activity page.");
         }
         ShowLoader();
-        DoTraktAuth();
 
         Step();
 
@@ -417,6 +464,7 @@
 
     function DoTraktAuth()
     {
+        var dfd = $.Deferred();
         // Get authentication status.
         var has_access_token = document.cookie.search(/access_token/) >= 0;
         var has_refresh_token = document.cookie.search(/refresh_token/) >= 0;
@@ -429,7 +477,9 @@
 
         // Run the tool.
         else if (has_access_token) {
-            //finalizeAuth();
+            SetupAuth().then(
+                dfd.resolve()
+            );
         } else if (has_refresh_token || has_code) {
             // Re-authenticate with trakt.tv.
             if (has_refresh_token)
@@ -455,9 +505,19 @@
                 //access_token, token_type, expires_in, refresh_token, scope, created_at
                 document.cookie = "access_token=" + data.access_token + "; expires=" + new Date((data.created_at + data.expires_in) * 1000).toUTCString();
                 document.cookie = "refresh_token=" + data.refresh_token + "; expires=" + new Date((data.created_at + (data.expires_in * 4)) * 1000).toUTCString();
+                SetupAuth().then(
+                    dfd.resolve()
+                );
             });
-        } else
+        } else {
             alert("Unexpected error authenticating.");
+            dfd.reject();
+        }
+        return dfd.promise();
+    }
+
+    function SetupAuth()
+    {return new Promise(function (resolve, reject) {
         var Bearer = document.cookie.replace(/^.*access_token=([^;]+).*$/, "$1");
         console.log(Bearer);
         $.ajaxSetup({
@@ -470,6 +530,8 @@
                 "trakt-api-key": "0040f4b6bd8c4ffd30c4094fb0e27483075cb6bf15bf274a3cf62cac1ff00dce"
             }
         });
+        resolve();
+    });
     }
 
     function GetEpisode(item)
@@ -565,10 +627,7 @@
 
     function sleep(miliseconds)
     {
-        var currentTime = new Date().getTime();
-
-        while (currentTime + miliseconds >= new Date().getTime()) {
-        }
+        console.log("Waiting for " + miliseconds);
     }
 
     function Wait(Message)
